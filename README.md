@@ -72,7 +72,7 @@ I reproduced the MCAR / high-correlation / bowl setting of Figure 4 using the au
 
 ΔR² = method test R² minus Bayes test R², per repetition (a difference, not a ratio); SD over 3 repetitions. The Bayes predictor uses the true parameters and the same test set at both sizes, so its score is identical.
 
-![Figure 1. Mean test R² per method for 20,000 and 100,000 training rows, with standard-deviation error bars over three repetitions. The dashed line marks the Bayes predictor (0.897).](fig.png)
+![Figure 1. Mean test R² per method for 20,000 and 100,000 training rows, with standard-deviation error bars over three repetitions. The dashed line marks the Bayes predictor (0.897).](fig_results_r2.png)
 
 ## 4. Discussion
 
