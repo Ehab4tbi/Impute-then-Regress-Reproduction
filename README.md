@@ -34,9 +34,9 @@ The experiments use 50-dimensional Gaussian covariates with a low-rank-plus-diag
 # Part II. Reproduction of the main experiment
 
 ## 1. Experiment and code
-We reproduced the MCAR / high-correlation / bowl setting of Figure 4 using the authors' public implementation, so no reimplementation was needed. The authors' data generator, estimators, NeuMiss+MLP model, Bayes predictor and experiment runner (`run_all.run`) were used unchanged, except that `np.Inf` was replaced by `np.inf` in `pytorchtools.py`, because NumPy 2 removed the old alias. A short driver script sets the reduced configuration below. To keep computation small, we used one fixed hyperparameter setting per method, three repetitions and five methods, at the paper's training size (100,000) and at 20,000 for comparison.
+I reproduced the MCAR / high-correlation / bowl setting of Figure 4 using the authors' public implementation, so no reimplementation was needed. The authors' data generator, estimators, NeuMiss+MLP model, Bayes predictor and experiment runner (`run_all.run`) were used unchanged, except that `np.Inf` was replaced by `np.inf` in `pytorchtools.py`, because NumPy 2 removed the old alias. I wrote a short driver script that calls the authors' code with the reduced configuration below. To keep computation small, I used one fixed hyperparameter setting per method, three repetitions and five methods, at the paper's training size (100,000) and at 20,000 for comparison.
 
-**Code:** authors' implementation at https://github.com/marineLM/Impute_then_Regress (commit `37e70a33`). Driver script and notebook: https://github.com/Ehab4tbi/Impute-then-Regress-Reproduction
+**Code:** the algorithm and experiment code are the authors' implementation at https://github.com/marineLM/Impute_then_Regress (commit `37e70a33`). My own driver script (sets the reduced experiment configuration and runs it), results-analysis script and Databricks notebook are at https://github.com/Ehab4tbi/Impute-then-Regress-Reproduction
 
 ## 2. Parameter settings
 
@@ -72,12 +72,14 @@ We reproduced the MCAR / high-correlation / bowl setting of Figure 4 using the a
 
 ΔR² = method test R² minus Bayes test R², per repetition (a difference, not a ratio); SD over 3 repetitions. The Bayes predictor uses the true parameters and the same test set at both sizes, so its score is identical.
 
+![Figure 1. Mean test R² per method for 20,000 and 100,000 training rows, with standard-deviation error bars over three repetitions. The dashed line marks the Bayes predictor (0.897).](fig_results_r2.png)
+
 ## 4. Discussion
 
-**Comparison with the paper.** The paper reports Figure 4 graphically rather than in a numerical table, so we compare method ordering and qualitative findings rather than exact values. Among the practical methods included, the pattern at 100,000 rows is broadly consistent with the paper: NeuMiss + MLP and MICE + mask + MLP are strongest, while mean + mask + MLP and GBRT are substantially farther from the Bayes reference, and all methods stay below it. The paper's claim that NeuMiss + MLP is the best method was not confirmed: its mean test R² differed from MICE + mask + MLP by only 0.0004, and three repetitions give insufficient evidence that either is superior. The full Figure 4 ranking was not reproduced because oracle and unmasked baselines were omitted. At 20,000 rows MICE + mask + MLP scored highest, and NeuMiss + MLP improved strongly between the two sizes (ΔR² from -0.352 to -0.066). This is an observed pattern; two sizes and three repetitions are not enough for a general learning-curve conclusion.
+**Comparison with the paper.** The paper reports Figure 4 graphically rather than in a numerical table, so I compare method ordering and qualitative findings rather than exact values. Among the practical methods included, the pattern at 100,000 rows is broadly consistent with the paper: NeuMiss + MLP and MICE + mask + MLP are strongest, while mean + mask + MLP and GBRT are substantially farther from the Bayes reference, and all methods stay below it. The paper's claim that NeuMiss + MLP is the best method was not confirmed: its mean test R² differed from MICE + mask + MLP by only 0.0004, and three repetitions give insufficient evidence that either is superior. The full Figure 4 ranking was not reproduced because oracle and unmasked baselines were omitted. At 20,000 rows MICE + mask + MLP scored highest, and NeuMiss + MLP improved strongly between the two sizes (ΔR² from -0.352 to -0.066). This is an observed pattern; two sizes and three repetitions are not enough for a general learning-curve conclusion.
 
 **Possible reasons for differences.**
-1. **No hyperparameter search.** The paper selects each method's best configuration on validation data; we used one fixed setting. NeuMiss + MLP, which learns imputation and regression together, may be more sensitive to this.
+1. **No hyperparameter search.** The paper selects each method's best configuration on validation data; I used one fixed setting. NeuMiss + MLP, which learns imputation and regression together, may be more sensitive to this.
 2. **Setting.** The high-correlation setting, which the paper calls "easy", may favour conditional imputation such as MICE. This is a plausible explanation, not something this experiment proves. Low correlation, self-masking, wave and break were not run.
 3. **Fewer repetitions.** Three repetitions instead of ten make small differences impossible to separate.
 4. **Software and randomness.** Library versions are newer than in 2021. GBRT has no fixed `random_state` in the authors' code, and its early stopping draws a random split, so its score changes slightly between runs (0.5268 in an earlier 20,000-row run, 0.5236 in the final run).
